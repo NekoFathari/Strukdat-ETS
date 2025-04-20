@@ -109,6 +109,7 @@ void toggleUnderline() {
 
 void moveUp() {
     if (currentLineIndex > 0) {
+        lines[currentLineIndex] = currentLine;
         currentLineIndex--;
         currentLine = lines[currentLineIndex];
     }
@@ -116,6 +117,7 @@ void moveUp() {
 
 void moveDown() {
     if (currentLineIndex < (int)lines.size() - 1) {
+        lines[currentLineIndex] = currentLine;
         currentLineIndex++;
         currentLine = lines[currentLineIndex];
     }
@@ -167,20 +169,33 @@ int main() {
             moveDown();
         } else if (ch == '\n') {
             pushToUndo();
-            lines.push_back(currentLine);
+            if (currentLineIndex < lines.size()) {
+                lines[currentLineIndex] = currentLine;
+            } else {
+                lines.push_back(currentLine);
+            }
+        
             fullText += currentLine + "\n";
+        
             currentLine.clear();
+            currentLineIndex = lines.size(); // Pindah ke baris baru
+            lines.push_back(""); // Buat baris baru kosong
             cout << "\n> " << flush;
             isStartOfWord = true;
         } else if (ch == 127) {
-            if (!currentLine.empty())
+            if (!currentLine.empty()) {
                 currentLine.pop_back();
-        } else {
+                if (currentLineIndex < lines.size())
+                    lines[currentLineIndex] = currentLine;
+            }
+        }  else {
             if (isStartOfWord) {
                 pushToUndo();
                 isStartOfWord = false;
             }
             currentLine += ch;
+            if (currentLineIndex < lines.size())
+        lines[currentLineIndex] = currentLine;
             if (ch == ' ') {
                 isStartOfWord = true;
             }
@@ -192,3 +207,4 @@ int main() {
     cout << "\n[Exiting editor]\n";
     return 0;
 }
+
